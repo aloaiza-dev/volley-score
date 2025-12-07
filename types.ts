@@ -4,7 +4,6 @@ export interface MatchConfig {
   lastSetPoints: number; // Usually 15 for tie-breaker
   setsToWin: number; // Best of 3 means setsToWin = 2
   winByTwo: boolean;
-  enableAI: boolean;
   isDarkMode: boolean;
   enableSound: boolean;
   language: 'en' | 'es';

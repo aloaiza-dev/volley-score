@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { TeamState, MatchConfig, HistoryEvent } from './types';
 import { SettingsModal } from './components/SettingsModal';
 import { StatsModal } from './components/StatsModal';
@@ -23,7 +23,6 @@ export default function App() {
     lastSetPoints: 15,
     setsToWin: 2, // Best of 3
     winByTwo: true,
-    enableAI: false, // Disabled
     isDarkMode: true,
     enableSound: true,
     language: 'en',
@@ -54,6 +53,9 @@ export default function App() {
   // Modals
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isStatsOpen, setIsStatsOpen] = useState(false);
+
+  // Refs for sound effects or focus (optional)
+  const lastActionTime = useRef(0);
 
   // Timer Effect
   useEffect(() => {
@@ -131,6 +133,7 @@ export default function App() {
     let newScoreB = teamB.score;
     let setsWonA = teamA.setsWon;
     let setsWonB = teamB.setsWon;
+    let matchOver = false;
 
     if (team === 'A') {
       newScoreA++;
@@ -158,6 +161,7 @@ export default function App() {
 
       // Check Match Win
       if (setsWonA === config.setsToWin || setsWonB === config.setsToWin) {
+        matchOver = true;
         setMatchWinner(setsWonA > setsWonB ? teamA.name : teamB.name);
         snapshot.type = 'MATCH_WIN';
         if (config.enableSound) playMatchWinSound();
@@ -182,7 +186,6 @@ export default function App() {
 
     // If it was a set win, we need to revert the set count
     if (lastEvent.type === 'SET_WIN' || lastEvent.type === 'MATCH_WIN') {
-       // Recalculate sets won based on history prior to this event
        const prevHistory = history.slice(0, -1);
        const setsA = prevHistory.filter(h => h.type === 'SET_WIN' && h.team === 'A').length;
        const setsB = prevHistory.filter(h => h.type === 'SET_WIN' && h.team === 'B').length;
@@ -190,9 +193,8 @@ export default function App() {
        setTeamA(prev => ({ ...prev, setsWon: setsA }));
        setTeamB(prev => ({ ...prev, setsWon: setsB }));
        setMatchWinner(null);
-       
-       // If undoing a set win, we are back in play, so maybe resume timer?
-       // Usually better to let user manually resume or resume on next point.
+       // Reset match over if it was match win
+       // Let user manually resume or resume on next point.
     }
 
     // If we undo the very first point, reset the timer

@@ -2,7 +2,8 @@
 import { GoogleGenAI } from "@google/genai";
 import { HistoryEvent, TeamState } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Disabled for now to prevent crash on Github Pages without API Key
+// const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const generateMatchSummary = async (
   teamA: TeamState,
@@ -11,6 +12,8 @@ export const generateMatchSummary = async (
   isMatchOver: boolean,
   language: 'en' | 'es' = 'en'
 ): Promise<string> => {
+  return "AI disabled";
+  /*
   try {
     // Construct a textual representation of the game flow
     const gameLog = history.map(h => {
@@ -48,4 +51,5 @@ export const generateMatchSummary = async (
       ? "No se pudo generar el resumen en este momento." 
       : "Could not generate match summary at this time.";
   }
+  */
 };
