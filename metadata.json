@@ -1,0 +1,5 @@
+{
+  "name": "VolleyScore Pro",
+  "description": "A mobile-first, distraction-free volleyball scoreboard with customizable rules and AI-powered match summaries.",
+  "requestFramePermissions": []
+}
