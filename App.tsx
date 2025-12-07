@@ -4,6 +4,7 @@ import { TeamState, MatchConfig, HistoryEvent } from './types';
 import { SettingsModal } from './components/SettingsModal';
 import { SummaryModal } from './components/SummaryModal';
 import { StatsModal } from './components/StatsModal';
+import { SetupScreen } from './components/SetupScreen';
 import { Button } from './components/Button';
 import { playPointSound, playSetWinSound, playMatchWinSound } from './services/soundService';
 import { t } from './utils/translations';
@@ -41,6 +42,9 @@ export default function App() {
       document.documentElement.classList.remove('dark');
     }
   }, [config.isDarkMode]);
+
+  // App Flow State
+  const [isMatchStarted, setIsMatchStarted] = useState(false);
 
   // Game State
   const [teamA, setTeamA] = useState<TeamState>({ name: 'Home', score: 0, setsWon: 0, color: 'bg-blue-600' });
@@ -200,6 +204,7 @@ export default function App() {
       setMatchWinner(null);
       setMatchDuration(0);
       setIsTimerRunning(false);
+      setIsMatchStarted(false); // Go back to setup
     }
   };
 
@@ -243,6 +248,21 @@ export default function App() {
       }
     }
   };
+
+  // If match hasn't started, show setup screen
+  if (!isMatchStarted) {
+    return (
+      <SetupScreen 
+        config={config} 
+        onUpdateConfig={setConfig} 
+        teamA={teamA} 
+        setTeamA={setTeamA} 
+        teamB={teamB} 
+        setTeamB={setTeamB}
+        onStartMatch={() => setIsMatchStarted(true)}
+      />
+    );
+  }
 
   return (
     <div className="flex flex-col h-full bg-slate-50 dark:bg-black transition-colors duration-300">

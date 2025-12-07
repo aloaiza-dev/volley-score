@@ -32,7 +32,7 @@ export const translations = {
     set: "Set",
     winner: "Winner",
     noSets: "No sets completed yet.",
-    resetConfirm: "Reset the entire match?",
+    resetConfirm: "End current match and return to setup?",
     startNewMatch: "Start New Match",
     matchWinner: "Match Winner",
     finalSets: "Final Sets",
@@ -52,6 +52,11 @@ export const translations = {
     sets: "Sets",
     score: "Score",
     finalScore: "Final Score",
+    setupMatch: "Setup Match",
+    configureTeams: "Configure Teams & Rules",
+    startMatch: "Start Match",
+    appTitle: "VolleyScore Pro",
+    readyToPlay: "Ready to Play?",
   },
   es: {
     settings: "Configuración",
@@ -82,7 +87,7 @@ export const translations = {
     set: "Set",
     winner: "Ganador",
     noSets: "Ningún set completado aún.",
-    resetConfirm: "¿Reiniciar todo el partido?",
+    resetConfirm: "¿Terminar partido y volver al inicio?",
     startNewMatch: "Nuevo Partido",
     matchWinner: "Ganador del Partido",
     finalSets: "Sets Finales",
@@ -102,6 +107,11 @@ export const translations = {
     sets: "Sets",
     score: "Puntos",
     finalScore: "Resultado Final",
+    setupMatch: "Configurar Partido",
+    configureTeams: "Equipos y Reglas",
+    startMatch: "Comenzar Partido",
+    appTitle: "VolleyScore Pro",
+    readyToPlay: "¿Listos para jugar?",
   }
 };
 
