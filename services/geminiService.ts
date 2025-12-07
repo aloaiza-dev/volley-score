@@ -1,16 +1,9 @@
 
-import { GoogleGenAI } from "@google/genai";
-import { HistoryEvent, TeamState } from "../types";
 
 // Disabled for now to prevent crash on Github Pages without API Key
 // const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const generateMatchSummary = async (
-  teamA: TeamState,
-  teamB: TeamState,
-  history: HistoryEvent[],
-  isMatchOver: boolean,
-  language: 'en' | 'es' = 'en'
 ): Promise<string> => {
   return "AI disabled";
   /*

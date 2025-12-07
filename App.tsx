@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { TeamState, MatchConfig, HistoryEvent } from './types';
 import { SettingsModal } from './components/SettingsModal';
 import { StatsModal } from './components/StatsModal';
@@ -53,9 +53,6 @@ export default function App() {
   // Modals
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isStatsOpen, setIsStatsOpen] = useState(false);
-
-  // Refs for sound effects or focus (optional)
-  const lastActionTime = useRef(0);
 
   // Timer Effect
   useEffect(() => {
@@ -133,7 +130,6 @@ export default function App() {
     let newScoreB = teamB.score;
     let setsWonA = teamA.setsWon;
     let setsWonB = teamB.setsWon;
-    let matchOver = false;
 
     if (team === 'A') {
       newScoreA++;
@@ -161,7 +157,6 @@ export default function App() {
 
       // Check Match Win
       if (setsWonA === config.setsToWin || setsWonB === config.setsToWin) {
-        matchOver = true;
         setMatchWinner(setsWonA > setsWonB ? teamA.name : teamB.name);
         snapshot.type = 'MATCH_WIN';
         if (config.enableSound) playMatchWinSound();
