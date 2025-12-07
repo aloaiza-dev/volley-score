@@ -174,17 +174,6 @@ export const SettingsContent: React.FC<SettingsContentProps> = ({
             </button>
           </div>
 
-          {/* AI Summary Toggle */}
-          <div className="flex items-center justify-between py-2">
-            <label className="text-slate-700 dark:text-slate-300 font-medium">{t(config.language, 'aiRecap')}</label>
-            <button 
-              onClick={() => handleChange('enableAI', !config.enableAI)}
-              className={`w-14 h-8 rounded-full p-1 transition-colors ${config.enableAI ? 'bg-purple-500' : 'bg-slate-300 dark:bg-slate-600'}`}
-            >
-              <div className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-transform ${config.enableAI ? 'translate-x-6' : 'translate-x-0'}`} />
-            </button>
-          </div>
-
             {/* Dark Mode Toggle */}
             <div className="flex items-center justify-between py-2">
             <label className="text-slate-700 dark:text-slate-300 font-medium">{t(config.language, 'darkMode')}</label>
