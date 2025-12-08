@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TeamState, MatchConfig, HistoryEvent } from './types';
 import { SettingsModal } from './components/SettingsModal';
 import { StatsModal } from './components/StatsModal';
@@ -53,9 +53,6 @@ export default function App() {
   // Modals
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isStatsOpen, setIsStatsOpen] = useState(false);
-
-  // Refs for sound effects or focus (optional)
-  const lastActionTime = useRef(0);
 
   // Timer Effect
   useEffect(() => {
@@ -193,8 +190,6 @@ export default function App() {
        setTeamA(prev => ({ ...prev, setsWon: setsA }));
        setTeamB(prev => ({ ...prev, setsWon: setsB }));
        setMatchWinner(null);
-       // Reset match over if it was match win
-       // Let user manually resume or resume on next point.
     }
 
     // If we undo the very first point, reset the timer
@@ -255,7 +250,7 @@ export default function App() {
   const currentSet = teamA.setsWon + teamB.setsWon + 1;
 
   return (
-    <div className="flex flex-col h-full overflow-hidden relative select-none">
+    <div className="flex flex-col h-full overflow-hidden relative select-none bg-slate-50 dark:bg-slate-900">
       
       {/* Modals */}
       <SettingsModal 
@@ -278,8 +273,8 @@ export default function App() {
       />
 
       {/* Top Bar */}
-      <div className="bg-white dark:bg-slate-800 shadow-sm px-4 py-2 flex items-center justify-between shrink-0 h-16 z-10 transition-colors duration-300">
-        <div className="flex items-center gap-2">
+      <div className="bg-white dark:bg-slate-800 shadow-sm px-4 flex items-center justify-between shrink-0 h-14 z-10 transition-colors duration-300 border-b border-slate-200 dark:border-slate-700">
+        <div className="flex items-center gap-1">
            <Button variant="ghost" size="sm" onClick={() => setIsSettingsOpen(true)}>
              <CogIcon />
            </Button>
@@ -297,12 +292,9 @@ export default function App() {
              <span className={`w-2 h-2 rounded-full ${isTimerRunning ? 'bg-red-500 animate-pulse' : 'bg-slate-400'}`}></span>
              {formatTime(matchDuration)}
           </div>
-          <div className="text-[10px] text-slate-400 font-bold tracking-widest uppercase">
-            {t(config.language, 'setLabel')} {currentSet}
-          </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
            <Button variant="ghost" size="sm" onClick={handleShare}>
              <ShareIcon />
            </Button>
@@ -312,15 +304,15 @@ export default function App() {
         </div>
       </div>
 
-      {/* Main Scoreboard Area */}
-      <div className="flex-1 flex flex-col landscape:flex-row relative">
+      {/* Main Scoreboard Area - Flex Column forces fit */}
+      <div className="flex-1 flex flex-col landscape:flex-row relative overflow-hidden">
         
-        {/* Undo Button (Absolute Center/Bottom) */}
+        {/* Undo Button (Absolute Center) */}
         {history.length > 0 && !matchWinner && (
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none">
              <button 
                onClick={handleUndo}
-               className="bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-full p-4 shadow-xl border border-slate-200 dark:border-slate-600 pointer-events-auto active:scale-95 transition-all"
+               className="bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-full p-4 shadow-xl border-4 border-slate-100 dark:border-slate-700 pointer-events-auto active:scale-95 transition-all hover:text-slate-900 dark:hover:text-white"
                aria-label={t(config.language, 'undo')}
              >
                <UndoIcon />
@@ -328,65 +320,83 @@ export default function App() {
           </div>
         )}
 
-        {/* Team A */}
-        <div className="flex-1 relative flex flex-col landscape:flex-col items-center justify-center p-4 border-b-8 landscape:border-b-0 landscape:border-r-8 border-slate-100 dark:border-slate-800 transition-colors duration-300">
+        {/* Team A Section */}
+        <div className="flex-1 relative flex flex-col items-center border-b-8 landscape:border-b-0 landscape:border-r-8 border-slate-100 dark:border-slate-800 transition-colors duration-300 overflow-hidden">
+           {/* Background Tint */}
            <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundColor: teamA.color.replace('bg-', '') }}></div>
            
-           <div className="z-10 flex flex-col items-center w-full h-full justify-center">
-             <div className="flex items-center gap-2 mb-4 group cursor-pointer" onClick={() => renameTeam('A')}>
-                <h2 className="text-3xl font-bold text-slate-600 dark:text-slate-300 max-w-[200px] truncate">{teamA.name}</h2>
+           {/* Content Container */}
+           <div className="z-10 flex flex-col items-center w-full h-full">
+             
+             {/* Name Header */}
+             <div className="pt-2 pb-1 shrink-0 group cursor-pointer flex items-center gap-2 z-20" onClick={() => renameTeam('A')}>
+                <h2 className="text-2xl font-bold text-slate-600 dark:text-slate-300 max-w-[200px] truncate">{teamA.name}</h2>
                 <span className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-400"><PencilIcon /></span>
              </div>
              
+             {/* Huge Score Button (Fills space) */}
              <button 
                 onClick={() => handlePoint('A')}
-                className={`w-full max-w-sm aspect-square rounded-3xl ${teamA.color} shadow-2xl flex flex-col items-center justify-center text-white active:scale-95 transition-all relative overflow-hidden`}
+                className={`flex-1 w-full flex items-center justify-center ${teamA.color} shadow-[inset_0_0_60px_rgba(0,0,0,0.1)] active:opacity-90 transition-all relative overflow-hidden`}
+                style={{ borderRadius: '1.5rem', margin: '0 1rem 0.5rem 1rem' }}
              >
-                <div className="text-[10rem] landscape:text-8xl font-black leading-none tracking-tighter">
+                {/* Viewport based text sizing to always fit */}
+                <div className="text-[20vh] font-black leading-none tracking-tighter text-white drop-shadow-md">
                   {teamA.score}
                 </div>
+                
+                {/* Target Indicator */}
                 {checkSetWin(teamA.score, teamB.score, currentSet-1) && !matchWinner && (
-                  <div className="absolute bottom-6 font-bold text-xl uppercase tracking-widest opacity-80 animate-bounce">
+                  <div className="absolute bottom-4 font-bold text-xl uppercase tracking-widest text-white/90 animate-bounce">
                     {t(config.language, 'target')}
                   </div>
                 )}
              </button>
 
-             <div className="mt-6 flex gap-2">
+             {/* Sets Won Indicators */}
+             <div className="pb-3 shrink-0 flex gap-2">
                 {Array.from({ length: config.setsToWin }).map((_, i) => (
-                  <div key={i} className={`w-4 h-4 rounded-full ${i < teamA.setsWon ? teamA.color : 'bg-slate-200 dark:bg-slate-700'}`} />
+                  <div key={i} className={`w-4 h-4 rounded-full border-2 border-white/20 shadow-sm ${i < teamA.setsWon ? teamA.color : 'bg-slate-200 dark:bg-slate-700'}`} />
                 ))}
              </div>
            </div>
         </div>
 
-        {/* Team B */}
-        <div className="flex-1 relative flex flex-col landscape:flex-col-reverse items-center justify-center p-4 transition-colors duration-300">
+        {/* Team B Section */}
+        <div className="flex-1 relative flex flex-col items-center transition-colors duration-300 overflow-hidden">
+           {/* Background Tint */}
            <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundColor: teamB.color.replace('bg-', '') }}></div>
 
-           <div className="z-10 flex flex-col items-center w-full h-full justify-center">
-             <div className="flex items-center gap-2 mb-4 landscape:mt-4 landscape:mb-0 group cursor-pointer" onClick={() => renameTeam('B')}>
-               <h2 className="text-3xl font-bold text-slate-600 dark:text-slate-300 max-w-[200px] truncate">{teamB.name}</h2>
+           {/* Content Container (Reverse order in landscape if desired, but Flex-col ensures fit) */}
+           <div className="z-10 flex flex-col items-center w-full h-full landscape:flex-col-reverse">
+             
+             {/* Name Header */}
+             <div className="pt-2 pb-1 landscape:pt-1 landscape:pb-2 shrink-0 group cursor-pointer flex items-center gap-2 z-20" onClick={() => renameTeam('B')}>
+               <h2 className="text-2xl font-bold text-slate-600 dark:text-slate-300 max-w-[200px] truncate">{teamB.name}</h2>
                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-400"><PencilIcon /></span>
              </div>
              
+             {/* Huge Score Button */}
              <button 
                 onClick={() => handlePoint('B')}
-                className={`w-full max-w-sm aspect-square rounded-3xl ${teamB.color} shadow-2xl flex flex-col items-center justify-center text-white active:scale-95 transition-all relative overflow-hidden`}
+                className={`flex-1 w-full flex items-center justify-center ${teamB.color} shadow-[inset_0_0_60px_rgba(0,0,0,0.1)] active:opacity-90 transition-all relative overflow-hidden`}
+                style={{ borderRadius: '1.5rem', margin: '0.5rem 1rem 0 1rem' }}
              >
-                <div className="text-[10rem] landscape:text-8xl font-black leading-none tracking-tighter">
+                <div className="text-[20vh] font-black leading-none tracking-tighter text-white drop-shadow-md">
                   {teamB.score}
                 </div>
+                
                 {checkSetWin(teamB.score, teamA.score, currentSet-1) && !matchWinner && (
-                  <div className="absolute bottom-6 font-bold text-xl uppercase tracking-widest opacity-80 animate-bounce">
+                  <div className="absolute bottom-4 font-bold text-xl uppercase tracking-widest text-white/90 animate-bounce">
                     {t(config.language, 'target')}
                   </div>
                 )}
              </button>
 
-             <div className="mt-6 landscape:mb-6 landscape:mt-0 flex gap-2">
+             {/* Sets Won Indicators */}
+             <div className="pb-3 landscape:pt-3 landscape:pb-0 shrink-0 flex gap-2">
                 {Array.from({ length: config.setsToWin }).map((_, i) => (
-                  <div key={i} className={`w-4 h-4 rounded-full ${i < teamB.setsWon ? teamB.color : 'bg-slate-200 dark:bg-slate-700'}`} />
+                  <div key={i} className={`w-4 h-4 rounded-full border-2 border-white/20 shadow-sm ${i < teamB.setsWon ? teamB.color : 'bg-slate-200 dark:bg-slate-700'}`} />
                 ))}
              </div>
            </div>
