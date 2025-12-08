@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { MatchConfig, TeamState } from '../types';
 import { t } from '../utils/translations';
@@ -36,23 +35,25 @@ export const SettingsContent: React.FC<SettingsContentProps> = ({
     onUpdateConfig({ ...config, [key]: value });
   };
 
-  const renderTeamSettings = (label: string, team: TeamState, setTeam: (t: TeamState) => void) => (
+  const renderTeamSettings = (label: string, team: TeamState, setTeam: (t: TeamState) => void, idPrefix: string) => (
     <div className="bg-slate-100 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
-      <label className="block text-slate-500 dark:text-slate-300 font-bold text-sm uppercase tracking-wider">{label}</label>
+      <label htmlFor={`${idPrefix}-name`} className="block text-slate-500 dark:text-slate-300 font-bold text-sm uppercase tracking-wider">{label}</label>
       <input 
+        id={`${idPrefix}-name`}
         type="text" 
         value={team.name}
         onChange={(e) => setTeam({...team, name: e.target.value})}
         className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 font-bold transition-colors"
         placeholder={t(config.language, 'teamName')}
       />
-      <div className="flex gap-2 flex-wrap">
+      <div className="flex gap-2 flex-wrap" role="group" aria-label={`Choose color for ${team.name}`}>
         {COLORS.map(c => (
           <button 
             key={c.value}
             onClick={() => setTeam({...team, color: c.value})}
             className={`w-8 h-8 rounded-full shadow-md transition-transform ${c.value} ${team.color === c.value ? 'ring-2 ring-slate-400 dark:ring-white scale-110' : 'hover:scale-105 opacity-80 hover:opacity-100'}`}
-            aria-label={`Select ${c.name}`}
+            aria-label={`Select ${c.name} color`}
+            aria-pressed={team.color === c.value}
           />
         ))}
       </div>
@@ -64,8 +65,8 @@ export const SettingsContent: React.FC<SettingsContentProps> = ({
       {/* Teams Section */}
       <div className="space-y-4">
           <h3 className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest">{t(config.language, 'teams')}</h3>
-          {renderTeamSettings(t(config.language, 'team1'), teamA, setTeamA)}
-          {renderTeamSettings(t(config.language, 'team2'), teamB, setTeamB)}
+          {renderTeamSettings(t(config.language, 'team1'), teamA, setTeamA, 'team1')}
+          {renderTeamSettings(t(config.language, 'team2'), teamB, setTeamB, 'team2')}
       </div>
 
       {/* Rules Section */}
@@ -126,11 +127,13 @@ export const SettingsContent: React.FC<SettingsContentProps> = ({
             <button 
               onClick={() => handleChange('pointsPerSet', Math.max(5, config.pointsPerSet - 1))}
               className="w-12 h-12 flex items-center justify-center bg-white dark:bg-slate-800 rounded-lg text-slate-900 dark:text-white shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 active:scale-95 transition-all"
+              aria-label="Decrease points per set"
             >-</button>
             <span className="text-2xl font-bold text-slate-900 dark:text-white">{config.pointsPerSet}</span>
             <button 
               onClick={() => handleChange('pointsPerSet', config.pointsPerSet + 1)}
               className="w-12 h-12 flex items-center justify-center bg-white dark:bg-slate-800 rounded-lg text-slate-900 dark:text-white shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 active:scale-95 transition-all"
+              aria-label="Increase points per set"
             >+</button>
           </div>
         </div>
@@ -142,11 +145,13 @@ export const SettingsContent: React.FC<SettingsContentProps> = ({
             <button 
               onClick={() => handleChange('lastSetPoints', Math.max(5, config.lastSetPoints - 1))}
               className="w-12 h-12 flex items-center justify-center bg-white dark:bg-slate-800 rounded-lg text-slate-900 dark:text-white shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 active:scale-95 transition-all"
+              aria-label="Decrease tie-break points"
             >-</button>
             <span className="text-2xl font-bold text-slate-900 dark:text-white">{config.lastSetPoints}</span>
             <button 
               onClick={() => handleChange('lastSetPoints', config.lastSetPoints + 1)}
               className="w-12 h-12 flex items-center justify-center bg-white dark:bg-slate-800 rounded-lg text-slate-900 dark:text-white shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 active:scale-95 transition-all"
+              aria-label="Increase tie-break points"
             >+</button>
           </div>
         </div>
@@ -158,6 +163,9 @@ export const SettingsContent: React.FC<SettingsContentProps> = ({
             <button 
               onClick={() => handleChange('winByTwo', !config.winByTwo)}
               className={`w-14 h-8 rounded-full p-1 transition-colors ${config.winByTwo ? 'bg-green-500' : 'bg-slate-300 dark:bg-slate-600'}`}
+              role="switch"
+              aria-checked={config.winByTwo}
+              aria-label={t(config.language, 'winByTwo')}
             >
               <div className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-transform ${config.winByTwo ? 'translate-x-6' : 'translate-x-0'}`} />
             </button>
@@ -169,6 +177,9 @@ export const SettingsContent: React.FC<SettingsContentProps> = ({
             <button 
               onClick={() => handleChange('enableSound', !config.enableSound)}
               className={`w-14 h-8 rounded-full p-1 transition-colors ${config.enableSound ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'}`}
+              role="switch"
+              aria-checked={config.enableSound}
+              aria-label={t(config.language, 'soundEffects')}
             >
               <div className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-transform ${config.enableSound ? 'translate-x-6' : 'translate-x-0'}`} />
             </button>
@@ -180,6 +191,9 @@ export const SettingsContent: React.FC<SettingsContentProps> = ({
             <button 
               onClick={() => handleChange('isDarkMode', !config.isDarkMode)}
               className={`w-14 h-8 rounded-full p-1 transition-colors ${config.isDarkMode ? 'bg-slate-900' : 'bg-slate-300'}`}
+              role="switch"
+              aria-checked={config.isDarkMode}
+              aria-label={t(config.language, 'darkMode')}
             >
               <div className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-transform ${config.isDarkMode ? 'translate-x-6' : 'translate-x-0'}`} />
             </button>

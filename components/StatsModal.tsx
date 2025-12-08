@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { TeamState, HistoryEvent, MatchConfig } from '../types';
 import { Button } from './Button';
@@ -65,13 +64,13 @@ export const StatsModal: React.FC<StatsModalProps> = ({
   const pctB = getPercent(stats.totalPointsB, stats.totalPoints);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-black/80 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-black/80 backdrop-blur-sm p-4" role="dialog" aria-modal="true" aria-labelledby="stats-title">
       <div className="bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col max-h-[90vh] transition-colors duration-300">
         <div className="p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-           <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+           <h2 id="stats-title" className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
              📊 {t(config.language, 'matchStats')}
            </h2>
-           <Button variant="ghost" size="sm" onClick={onClose}>✕</Button>
+           <Button variant="ghost" size="sm" onClick={onClose} aria-label="Close stats">✕</Button>
         </div>
         
         <div className="p-6 overflow-y-auto space-y-8 custom-scrollbar">
@@ -83,7 +82,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({
                <span style={{ color: teamA.color.replace('bg-', 'text-').replace('-600', '-500') }} className="text-blue-500">{stats.totalPointsA}</span>
                <span style={{ color: teamB.color.replace('bg-', 'text-').replace('-600', '-500') }} className="text-red-500">{stats.totalPointsB}</span>
             </div>
-            <div className="h-4 w-full bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden flex">
+            <div className="h-4 w-full bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden flex" role="progressbar" aria-valuenow={pctA} aria-valuemin={0} aria-valuemax={100} aria-label="Points distribution">
               <div style={{ width: `${pctA}%` }} className={`${teamA.color} transition-all duration-500`} />
               <div style={{ width: `${pctB}%` }} className={`${teamB.color} transition-all duration-500`} />
             </div>
@@ -130,10 +129,10 @@ export const StatsModal: React.FC<StatsModalProps> = ({
                 <table className="w-full text-sm text-left">
                   <thead className="bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 font-bold uppercase">
                     <tr>
-                      <th className="px-4 py-3">{t(config.language, 'set')}</th>
-                      <th className="px-4 py-3">{teamA.name}</th>
-                      <th className="px-4 py-3">{teamB.name}</th>
-                      <th className="px-4 py-3 text-right">{t(config.language, 'winner')}</th>
+                      <th className="px-4 py-3" scope="col">{t(config.language, 'set')}</th>
+                      <th className="px-4 py-3" scope="col">{teamA.name}</th>
+                      <th className="px-4 py-3" scope="col">{teamB.name}</th>
+                      <th className="px-4 py-3 text-right" scope="col">{t(config.language, 'winner')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200 dark:divide-slate-700">

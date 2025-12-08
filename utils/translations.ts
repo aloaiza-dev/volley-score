@@ -57,6 +57,13 @@ export const translations = {
     startMatch: "Start Match",
     appTitle: "VolleyScore Pro",
     readyToPlay: "Ready to Play?",
+    // Modals
+    confirm: "Confirm",
+    cancel: "Cancel",
+    save: "Save",
+    resetMatchTitle: "Reset Match?",
+    resetMatchBody: "Are you sure you want to end the current match and return to the main menu?",
+    renameTeamTitle: "Rename Team",
   },
   es: {
     settings: "Configuración",
@@ -112,6 +119,13 @@ export const translations = {
     startMatch: "Comenzar Partido",
     appTitle: "VolleyScore Pro",
     readyToPlay: "¿Listos para jugar?",
+    // Modals
+    confirm: "Confirmar",
+    cancel: "Cancelar",
+    save: "Guardar",
+    resetMatchTitle: "¿Reiniciar Partido?",
+    resetMatchBody: "¿Estás seguro de que quieres terminar el partido actual y volver al menú principal?",
+    renameTeamTitle: "Renombrar Equipo",
   }
 };
 
