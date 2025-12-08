@@ -205,7 +205,31 @@ export default function App() {
   };
 
   const handleShare = async () => {
-    const text = `${t(config.language, 'matchUpdate')}: ${teamA.name} ${teamA.setsWon}-${teamB.setsWon} ${teamB.name} (${t(config.language, 'set')} ${teamA.setsWon + teamB.setsWon + 1}: ${teamA.score}-${teamB.score})`;
+    let text = '';
+    
+    if (matchWinner) {
+      // Format similar to matchWinner overlay
+      text = `🏆 ${t(config.language, 'matchWinner')}\n\n`;
+      text += `${matchWinner}\n\n`;
+      text += `${t(config.language, 'finalScore')}\n`;
+      text += `${teamA.name} ${teamA.setsWon} - ${teamB.setsWon} ${teamB.name}\n\n`;
+      
+      // Add set-by-set breakdown
+      const completedSets = history.filter(h => h.type === 'SET_WIN' || h.type === 'MATCH_WIN');
+      if (completedSets.length > 0) {
+        text += `${t(config.language, 'sets')}:\n`;
+        completedSets.forEach((set, idx) => {
+          const winner = set.scoreSnapshot.a > set.scoreSnapshot.b ? teamA.name : teamB.name;
+          text += `${t(config.language, 'set')} ${idx + 1}: ${set.scoreSnapshot.a}-${set.scoreSnapshot.b} (${winner})\n`;
+        });
+      }
+    } else {
+      // Current match state
+      const currentSet = teamA.setsWon + teamB.setsWon + 1;
+      text = `${t(config.language, 'matchUpdate')}\n\n`;
+      text += `${teamA.name} ${teamA.setsWon} - ${teamB.setsWon} ${teamB.name}\n`;
+      text += `${t(config.language, 'set')} ${currentSet}: ${teamA.score}-${teamB.score}`;
+    }
     
     if (navigator.share) {
       try {
