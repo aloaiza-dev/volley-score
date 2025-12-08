@@ -3,7 +3,38 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>VolleyScore Pro</title>
+    
+    <!-- SEO Metadata -->
+    <title>VolleyScore Pro - Professional Volleyball Scoreboard</title>
+    <meta name="description" content="A distraction-free, mobile-first volleyball scoreboard app. Track sets, points, and stats with customizable rules. Perfect for referees, coaches, and players." />
+    <meta name="keywords" content="volleyball, scoreboard, score keeper, sports app, match tracker, volley stats" />
+    <meta name="author" content="VolleyScore Pro" />
+    <meta name="theme-color" content="#1e293b" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://volleyscore-pro.web.app/" />
+    <meta property="og:title" content="VolleyScore Pro" />
+    <meta property="og:description" content="Track volleyball matches effortlessly with this professional mobile scoreboard." />
+    <meta property="og:image" content="https://volleyscore-pro.web.app/og-image.jpg" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://volleyscore-pro.web.app/" />
+    <meta property="twitter:title" content="VolleyScore Pro" />
+    <meta property="twitter:description" content="Track volleyball matches effortlessly with this professional mobile scoreboard." />
+    <meta property="twitter:image" content="https://volleyscore-pro.web.app/og-image.jpg" />
+
+    <!-- Google Analytics (Replace G-YOUR-ID-HERE with your actual Measurement ID) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YOUR-ID-HERE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-YOUR-ID-HERE');
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -14,6 +45,16 @@
               slate: {
                 850: '#1e293b', 
               }
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.3s ease-out',
+              'bounce-short': 'bounce 1s infinite'
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              }
             }
           }
         }
@@ -21,7 +62,10 @@
     </script>
     <style>
       /* Prevent scrolling on mobile to feel like a native app */
-      body {
+      html, body {
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
         overscroll-behavior: none;
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
@@ -37,7 +81,17 @@
         border-radius: 4px;
       }
     </style>
-  <script type="module" crossorigin src="./assets/index-TOduQCk4.js"></script>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "vite": "https://aistudiocdn.com/vite@^7.2.7",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.2"
+  }
+}
+</script>
 </head>
   <body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white overflow-hidden h-[100dvh] w-screen transition-colors duration-300">
     <div id="root" class="h-full w-full"></div>
