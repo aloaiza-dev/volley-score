@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <!-- SEO Metadata -->
     <title>VolleyScore Pro - Professional Volleyball Scoreboard</title>
@@ -24,63 +24,9 @@
     <meta property="twitter:title" content="VolleyScore Pro" />
     <meta property="twitter:description" content="Track volleyball matches effortlessly with this professional mobile scoreboard." />
     <meta property="twitter:image" content="https://volleyscore-pro.web.app/og-image.jpg" />
-
-    <!-- Google Analytics (Replace G-YOUR-ID-HERE with your actual Measurement ID) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YOUR-ID-HERE"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-YOUR-ID-HERE');
-    </script>
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            colors: {
-              slate: {
-                850: '#1e293b', 
-              }
-            },
-            animation: {
-              'fade-in': 'fadeIn 0.3s ease-out',
-              'bounce-short': 'bounce 1s infinite'
-            },
-            keyframes: {
-              fadeIn: {
-                '0%': { opacity: '0' },
-                '100%': { opacity: '1' },
-              }
-            }
-          }
-        }
-      }
-    </script>
-    <style>
-      /* Prevent scrolling on mobile to feel like a native app */
-      html, body {
-        height: 100%;
-        width: 100%;
-        overflow: hidden;
-        overscroll-behavior: none;
-        touch-action: manipulation;
-        -webkit-tap-highlight-color: transparent;
-      }
-      .custom-scrollbar::-webkit-scrollbar {
-        width: 8px;
-      }
-      .custom-scrollbar::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      .custom-scrollbar::-webkit-scrollbar-thumb {
-        background-color: rgba(156, 163, 175, 0.5);
-        border-radius: 4px;
-      }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800;900&family=Manrope:wght@500;700;800&display=swap" rel="stylesheet" />
 </head>
   <body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white overflow-hidden h-[100dvh] w-screen transition-colors duration-300">
     <div id="root" class="h-full w-full"></div>

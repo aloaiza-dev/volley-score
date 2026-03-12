@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Button } from './Button';
 import { t, Language } from '../utils/translations';
+import { useDialogA11y } from '../utils/useDialogA11y';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -14,15 +15,24 @@ interface ConfirmationModalProps {
 export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   isOpen, onClose, onConfirm, title, message, language
 }) => {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
+
+  useDialogA11y(dialogRef, {
+    isOpen,
+    onClose,
+    initialFocusRef: cancelButtonRef,
+  });
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
-      <div className="bg-white dark:bg-slate-800 w-full max-w-sm rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 p-6 transform transition-all">
-        <h3 id="confirm-title" className="text-xl font-bold text-slate-900 dark:text-white mb-3">{title}</h3>
-        <p className="text-slate-600 dark:text-slate-300 mb-8 leading-relaxed">{message}</p>
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/60 backdrop-blur-md p-4 animate-fade-in" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title">
+      <div ref={dialogRef} tabIndex={-1} className="w-full max-w-sm rounded-[1.8rem] border border-slate-200 bg-slate-50 p-6 shadow-[0_30px_80px_-36px_rgba(15,23,42,0.8)] transition-all dark:border-slate-700 dark:bg-slate-900">
+        <h3 id="confirm-title" className="font-display mb-3 text-xl font-black uppercase tracking-[0.08em] text-slate-950 dark:text-slate-50">{title}</h3>
+        <p className="mb-8 leading-relaxed text-slate-700 dark:text-slate-300">{message}</p>
         <div className="flex gap-3 justify-end">
-          <Button variant="secondary" onClick={onClose} size="md">
+          <Button ref={cancelButtonRef} variant="secondary" onClick={onClose} size="md">
             {t(language, 'cancel')}
           </Button>
           <Button variant="danger" onClick={onConfirm} size="md">

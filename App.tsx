@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { TeamState, MatchConfig, HistoryEvent } from './types';
 import { SettingsModal } from './components/SettingsModal';
 import { StatsModal } from './components/StatsModal';
@@ -9,6 +9,9 @@ import { ConfirmationModal } from './components/ConfirmationModal';
 import { InputModal } from './components/InputModal';
 import { playPointSound, playSetWinSound, playMatchWinSound } from './services/soundService';
 import { t } from './utils/translations';
+import { getTeamColorToken } from './utils/teamColors';
+import { useDialogA11y } from './utils/useDialogA11y';
+import { MatchTimer } from './components/MatchTimer';
 
 // Icons
 const CogIcon = () => <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
@@ -19,6 +22,9 @@ const ShareIcon = () => <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24"
 const PencilIcon = () => <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>;
 
 export default function App() {
+  const winnerDialogRef = useRef<HTMLDivElement>(null);
+  const winnerShareButtonRef = useRef<HTMLButtonElement>(null);
+
   // Config State with LocalStorage Persistence
   const [config, setConfig] = useState<MatchConfig>(() => {
     const defaultConfig: MatchConfig = {
@@ -54,7 +60,8 @@ export default function App() {
     } else {
       document.documentElement.classList.remove('dark');
     }
-  }, [config.isDarkMode]);
+    document.documentElement.lang = config.language;
+  }, [config.isDarkMode, config.language]);
 
   // App Flow State
   const [isMatchStarted, setIsMatchStarted] = useState(false);
@@ -66,8 +73,8 @@ export default function App() {
   const [matchWinner, setMatchWinner] = useState<string | null>(null);
 
   // Timer State
-  const [matchDuration, setMatchDuration] = useState(0); // seconds
   const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [timerResetSignal, setTimerResetSignal] = useState(0);
 
   // Modals & Popups State
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -76,31 +83,9 @@ export default function App() {
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
   const [renamingTeam, setRenamingTeam] = useState<'A' | 'B' | null>(null);
 
-  // Timer Effect
-  useEffect(() => {
-    let interval: any;
-    if (isTimerRunning) {
-      interval = setInterval(() => {
-        setMatchDuration(prev => prev + 1);
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [isTimerRunning]);
-
   // Toast Helper
   const showToast = (message: string) => {
     setToastMessage(message);
-  };
-
-  // Format Timer
-  const formatTime = (seconds: number) => {
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    if (hrs > 0) {
-       return `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   const handleStartTimer = () => {
@@ -117,7 +102,7 @@ export default function App() {
 
   const handleStartMatch = () => {
     setIsMatchStarted(true);
-    setMatchDuration(0);
+    setTimerResetSignal(prev => prev + 1);
     setHistory([]);
     setMatchWinner(null);
     setTeamA(prev => ({ ...prev, score: 0, setsWon: 0 }));
@@ -219,8 +204,8 @@ export default function App() {
 
     // If we undo the very first point, reset the timer
     if (history.length === 1) {
-       setMatchDuration(0);
        setIsTimerRunning(false);
+       setTimerResetSignal(prev => prev + 1);
     }
   };
 
@@ -231,6 +216,7 @@ export default function App() {
   const performReset = () => {
     setIsMatchStarted(false);
     setIsTimerRunning(false);
+    setTimerResetSignal(prev => prev + 1);
     setIsResetConfirmOpen(false);
   };
 
@@ -288,6 +274,12 @@ export default function App() {
     setRenamingTeam(null);
   };
 
+  useDialogA11y(winnerDialogRef, {
+    isOpen: !!matchWinner,
+    onClose: handleResetRequest,
+    initialFocusRef: winnerShareButtonRef,
+  });
+
   if (!isMatchStarted) {
     return (
       <SetupScreen 
@@ -303,10 +295,16 @@ export default function App() {
   }
 
   const currentSet = teamA.setsWon + teamB.setsWon + 1;
+  const teamAColor = getTeamColorToken(teamA.color);
+  const teamBColor = getTeamColorToken(teamB.color);
 
   // Use min-h-0 to allow flex items to shrink below their content size if needed, ensuring exact fit
   return (
-    <div className="flex flex-col h-full overflow-hidden relative select-none bg-slate-50 dark:bg-slate-900">
+    <div className="relative flex h-full select-none flex-col overflow-hidden bg-transparent">
+      <div className="pointer-events-none absolute inset-0 opacity-90" aria-hidden="true">
+        <div className="absolute left-[-10%] top-[-18%] h-64 w-64 rounded-full blur-3xl" style={{ background: teamAColor.tint }} />
+        <div className="absolute right-[-8%] bottom-[-12%] h-72 w-72 rounded-full blur-3xl" style={{ background: teamBColor.tint }} />
+      </div>
       
       {/* Toast Notification - aria-live for announcements */}
       <div aria-live="polite">
@@ -358,8 +356,8 @@ export default function App() {
       />
 
       {/* Top Bar - Fixed Height */}
-      <header className="bg-white dark:bg-slate-800 shadow-sm px-4 flex items-center justify-between shrink-0 h-14 z-10 transition-colors duration-300 border-b border-slate-200 dark:border-slate-700">
-        <div className="flex items-center gap-1">
+      <header className="z-10 mx-3 mt-3 flex h-16 shrink-0 items-center justify-between rounded-[1.7rem] border border-slate-200/70 bg-white/84 px-3 shadow-[0_16px_32px_-30px_rgba(15,23,42,0.45)] transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800/88">
+        <div className="flex items-center gap-1.5">
            <Button variant="ghost" size="sm" onClick={() => setIsSettingsOpen(true)} aria-label={t(config.language, 'settings')}>
              <CogIcon />
            </Button>
@@ -368,37 +366,32 @@ export default function App() {
            </Button>
         </div>
         
-        <button 
-          className="flex flex-col items-center cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2" 
-          onClick={handleToggleTimer}
-          aria-label={isTimerRunning ? "Pause Timer" : "Resume Timer"}
-          title={isTimerRunning ? t(config.language, 'timerRunning') : t(config.language, 'timerPaused')}
-        >
-          <div className="text-xl font-mono font-bold text-slate-900 dark:text-white flex items-center gap-2">
-             <span className={`w-2 h-2 rounded-full ${isTimerRunning ? 'bg-red-500 animate-pulse' : 'bg-slate-400'}`} aria-hidden="true"></span>
-             {formatTime(matchDuration)}
-          </div>
-        </button>
+        <MatchTimer
+          isRunning={isTimerRunning}
+          language={config.language}
+          onToggle={handleToggleTimer}
+          resetSignal={timerResetSignal}
+        />
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
            <Button variant="ghost" size="sm" onClick={handleShare} aria-label={t(config.language, 'share')}>
              <ShareIcon />
            </Button>
-           <Button variant="ghost" size="sm" onClick={handleResetRequest} aria-label="Reset Match">
+           <Button variant="ghost" size="sm" onClick={handleResetRequest} aria-label={t(config.language, 'resetMatch')}>
              <RefreshIcon />
            </Button>
         </div>
       </header>
 
       {/* Main Scoreboard Area - Flex Column forces fit, min-h-0 prevents overflow */}
-      <main className="flex-1 flex flex-col landscape:flex-row relative min-h-0">
+      <main className="relative flex flex-1 flex-col min-h-0 landscape:flex-row px-3 pb-3 pt-3 gap-3">
         
         {/* Undo Button (Absolute Center) */}
         {history.length > 0 && !matchWinner && (
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none">
              <button 
                onClick={handleUndo}
-               className="bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded-full p-4 shadow-xl border-4 border-slate-100 dark:border-slate-700 pointer-events-auto active:scale-95 transition-all hover:text-slate-900 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+               className="pointer-events-auto rounded-full border-4 border-slate-100 bg-white p-4 text-slate-500 shadow-[0_24px_48px_-30px_rgba(15,23,42,0.9)] transition-all hover:text-slate-900 active:scale-95 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:text-white"
                aria-label={t(config.language, 'undo')}
              >
                <UndoIcon />
@@ -407,89 +400,107 @@ export default function App() {
         )}
 
         {/* Team A Section */}
-        <section className="flex-1 relative flex flex-col items-center border-b-8 landscape:border-b-0 landscape:border-r-8 border-slate-100 dark:border-slate-800 transition-colors duration-300 min-h-0">
+        <section className="relative flex min-h-0 flex-1 flex-col items-center overflow-hidden rounded-[2.1rem] border border-slate-200/70 bg-white/88 shadow-[0_22px_48px_-40px_rgba(15,23,42,0.56)] transition-colors duration-300 dark:border-slate-700 dark:bg-slate-900/88">
            {/* Background Tint */}
-           <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundColor: teamA.color.replace('bg-', '') }}></div>
+           <div className="absolute inset-0 pointer-events-none" style={{ background: `linear-gradient(180deg, ${teamAColor.tint}, transparent 55%)` }}></div>
            
            {/* Content Container - Flex to fit */}
            <div className="z-10 flex flex-col items-center w-full h-full min-h-0">
              
              {/* Name Header */}
              <button 
-               className="pt-2 pb-1 shrink-0 group cursor-pointer flex items-center gap-2 z-20 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded" 
+               className="group z-20 flex w-full shrink-0 items-center justify-center gap-2 px-4 pt-4 pb-2" 
                onClick={() => handleRenameRequest('A')}
                aria-label={`${t(config.language, 'renameTeamTitle')} ${teamA.name}`}
              >
-                <h2 className="text-2xl font-bold text-slate-600 dark:text-slate-300 max-w-[200px] truncate">{teamA.name}</h2>
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-400" aria-hidden="true"><PencilIcon /></span>
+                <h2 className="max-w-[min(72vw,200px)] truncate font-display text-xl font-black uppercase tracking-[0.02em] text-slate-900 dark:text-white sm:text-2xl">{teamA.name}</h2>
+                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-500 dark:text-slate-300" aria-hidden="true"><PencilIcon /></span>
              </button>
+             <div className="mb-3 flex min-w-0 flex-wrap items-center justify-center gap-2 rounded-full bg-white/92 px-4 py-1.5 text-[11px] font-black uppercase tracking-[0.28em] text-slate-700 shadow-[0_10px_18px_-16px_rgba(15,23,42,0.5)] dark:bg-slate-950/62 dark:text-slate-200">
+               <span className="rounded-full px-2.5 py-1 text-white shrink-0" style={{ backgroundColor: teamAColor.swatch }}>{t(config.language, 'teamBadgeA')}</span>
+               <span>{t(config.language, 'set')} {currentSet}</span>
+             </div>
              
              {/* Huge Score Button (Fills remaining space) */}
              <button 
                 onClick={() => handlePoint('A')}
-                aria-label={`Score point for ${teamA.name}. Current score ${teamA.score}`}
-                className={`flex-1 w-full flex items-center justify-center ${teamA.color} shadow-[inset_0_0_60px_rgba(0,0,0,0.1)] active:opacity-90 transition-all relative overflow-hidden min-h-0 mx-4 mb-2 rounded-[2rem] focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-slate-400`}
+                aria-label={`${t(config.language, 'scorePointFor')} ${teamA.name}. ${t(config.language, 'currentScoreIs')} ${teamA.score}`}
+                className={`relative mx-4 mb-3 flex min-h-0 w-[calc(100%-2rem)] flex-1 items-center justify-center overflow-hidden rounded-[2rem] ${teamA.color} shadow-[inset_0_0_90px_rgba(255,255,255,0.08),inset_0_-24px_42px_rgba(15,23,42,0.25),0_30px_50px_-30px_rgba(15,23,42,0.55)] transition-all active:scale-[0.995] active:opacity-95`}
+                style={{ boxShadow: `inset 0 0 90px rgba(255,255,255,0.08), inset 0 -24px 42px rgba(15,23,42,0.25), 0 24px 50px -28px ${teamAColor.glow}` }}
              >
-                <div className="text-[20vh] font-black leading-none tracking-tighter text-white drop-shadow-md select-none">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.24),transparent_38%)]" aria-hidden="true" />
+                <div className="absolute left-3 top-3 rounded-full border border-white/25 bg-slate-950/20 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white/95 sm:left-5 sm:top-5 sm:px-3 sm:text-[11px] sm:tracking-[0.24em]" aria-hidden="true">
+                  {t(config.language, 'tapToScore')}
+                </div>
+                <div className="px-4 text-[clamp(4.75rem,18vw,10rem)] font-black leading-none tracking-[-0.08em] text-white drop-shadow-md select-none landscape:text-[clamp(4rem,15vh,9rem)]">
                   {teamA.score}
                 </div>
                 
                 {/* Target Indicator */}
                 {checkSetWin(teamA.score, teamB.score, currentSet-1) && !matchWinner && (
-                  <div className="absolute bottom-4 font-bold text-xl uppercase tracking-widest text-white/90 animate-bounce">
+                  <div className="absolute bottom-3 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.2em] text-white/95 sm:bottom-4 sm:px-4 sm:py-2 sm:text-sm sm:tracking-[0.24em]">
                     {t(config.language, 'target')}
                   </div>
                 )}
              </button>
 
              {/* Sets Won Indicators */}
-             <div className="pb-3 shrink-0 flex gap-2" role="status" aria-label={`Sets won by ${teamA.name}: ${teamA.setsWon}`}>
+             <div className="flex shrink-0 gap-2 pb-4" role="status" aria-label={`${t(config.language, 'setsWonStatus')} ${teamA.name}: ${teamA.setsWon}`}>
                 {Array.from({ length: config.setsToWin }).map((_, i) => (
-                  <div key={i} className={`w-4 h-4 rounded-full border-2 border-white/20 shadow-sm ${i < teamA.setsWon ? teamA.color : 'bg-slate-200 dark:bg-slate-700'}`} />
+                  <div key={i} className={`h-4 w-10 rounded-full border border-white/30 shadow-sm ${i < teamA.setsWon ? teamA.color : 'bg-slate-200 dark:bg-slate-700'}`} />
                 ))}
              </div>
            </div>
         </section>
 
         {/* Team B Section */}
-        <section className="flex-1 relative flex flex-col items-center transition-colors duration-300 min-h-0">
+        <section className="relative flex min-h-0 flex-1 flex-col items-center overflow-hidden rounded-[2.1rem] border border-slate-200/70 bg-white/88 shadow-[0_22px_48px_-40px_rgba(15,23,42,0.56)] transition-colors duration-300 dark:border-slate-700 dark:bg-slate-900/88">
            {/* Background Tint */}
-           <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundColor: teamB.color.replace('bg-', '') }}></div>
+           <div className="absolute inset-0 pointer-events-none" style={{ background: `linear-gradient(180deg, ${teamBColor.tint}, transparent 55%)` }}></div>
 
-           {/* Content Container - Reverse order in landscape */}
-           <div className="z-10 flex flex-col items-center w-full h-full min-h-0 landscape:flex-col-reverse">
+           {/* Content Container */}
+           <div className="z-10 flex flex-col items-center w-full h-full min-h-0">
              
              {/* Name Header */}
              <button 
-               className="pt-2 pb-1 landscape:pt-1 landscape:pb-2 shrink-0 group cursor-pointer flex items-center gap-2 z-20 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded" 
+               className="group z-20 flex w-full shrink-0 items-center justify-center gap-2 px-4 pt-4 pb-2" 
                onClick={() => handleRenameRequest('B')}
                aria-label={`${t(config.language, 'renameTeamTitle')} ${teamB.name}`}
              >
-               <h2 className="text-2xl font-bold text-slate-600 dark:text-slate-300 max-w-[200px] truncate">{teamB.name}</h2>
-               <span className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-400" aria-hidden="true"><PencilIcon /></span>
+               <h2 className="max-w-[min(72vw,200px)] truncate font-display text-xl font-black uppercase tracking-[0.02em] text-slate-900 dark:text-white sm:text-2xl">{teamB.name}</h2>
+               <span className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-500 dark:text-slate-300" aria-hidden="true"><PencilIcon /></span>
              </button>
+             <div className="mb-3 flex min-w-0 flex-wrap items-center justify-center gap-2 rounded-full bg-white/92 px-4 py-1.5 text-[11px] font-black uppercase tracking-[0.28em] text-slate-700 shadow-[0_10px_18px_-16px_rgba(15,23,42,0.5)] dark:bg-slate-950/62 dark:text-slate-200">
+               <span className="rounded-full px-2.5 py-1 text-white shrink-0" style={{ backgroundColor: teamBColor.swatch }}>{t(config.language, 'teamBadgeB')}</span>
+               <span>{t(config.language, 'set')} {currentSet}</span>
+             </div>
              
              {/* Huge Score Button */}
              <button 
                 onClick={() => handlePoint('B')}
-                aria-label={`Score point for ${teamB.name}. Current score ${teamB.score}`}
-                className={`flex-1 w-full flex items-center justify-center ${teamB.color} shadow-[inset_0_0_60px_rgba(0,0,0,0.1)] active:opacity-90 transition-all relative overflow-hidden min-h-0 mx-4 mt-2 landscape:mt-0 landscape:mb-2 rounded-[2rem] focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-slate-400`}
+                aria-label={`${t(config.language, 'scorePointFor')} ${teamB.name}. ${t(config.language, 'currentScoreIs')} ${teamB.score}`}
+                className={`relative mx-4 mb-3 flex min-h-0 w-[calc(100%-2rem)] flex-1 items-center justify-center overflow-hidden rounded-[2rem] ${teamB.color} shadow-[inset_0_0_90px_rgba(255,255,255,0.08),inset_0_-24px_42px_rgba(15,23,42,0.25),0_30px_50px_-30px_rgba(15,23,42,0.55)] transition-all active:scale-[0.995] active:opacity-95`}
+                style={{ boxShadow: `inset 0 0 90px rgba(255,255,255,0.08), inset 0 -24px 42px rgba(15,23,42,0.25), 0 24px 50px -28px ${teamBColor.glow}` }}
              >
-                <div className="text-[20vh] font-black leading-none tracking-tighter text-white drop-shadow-md select-none">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.24),transparent_38%)]" aria-hidden="true" />
+                <div className="absolute left-3 top-3 rounded-full border border-white/25 bg-slate-950/20 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-white/95 sm:left-5 sm:top-5 sm:px-3 sm:text-[11px] sm:tracking-[0.24em]" aria-hidden="true">
+                  {t(config.language, 'tapToScore')}
+                </div>
+                <div className="px-4 text-[clamp(4.75rem,18vw,10rem)] font-black leading-none tracking-[-0.08em] text-white drop-shadow-md select-none landscape:text-[clamp(4rem,15vh,9rem)]">
                   {teamB.score}
                 </div>
                 
                 {checkSetWin(teamB.score, teamA.score, currentSet-1) && !matchWinner && (
-                  <div className="absolute bottom-4 font-bold text-xl uppercase tracking-widest text-white/90 animate-bounce">
+                  <div className="absolute bottom-3 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.2em] text-white/95 sm:bottom-4 sm:px-4 sm:py-2 sm:text-sm sm:tracking-[0.24em]">
                     {t(config.language, 'target')}
                   </div>
                 )}
              </button>
 
              {/* Sets Won Indicators */}
-             <div className="pb-3 landscape:pt-3 landscape:pb-0 shrink-0 flex gap-2" role="status" aria-label={`Sets won by ${teamB.name}: ${teamB.setsWon}`}>
+             <div className="flex shrink-0 gap-2 pb-4" role="status" aria-label={`${t(config.language, 'setsWonStatus')} ${teamB.name}: ${teamB.setsWon}`}>
                 {Array.from({ length: config.setsToWin }).map((_, i) => (
-                  <div key={i} className={`w-4 h-4 rounded-full border-2 border-white/20 shadow-sm ${i < teamB.setsWon ? teamB.color : 'bg-slate-200 dark:bg-slate-700'}`} />
+                  <div key={i} className={`h-4 w-10 rounded-full border border-white/30 shadow-sm ${i < teamB.setsWon ? teamB.color : 'bg-slate-200 dark:bg-slate-700'}`} />
                 ))}
              </div>
            </div>
@@ -498,31 +509,40 @@ export default function App() {
 
       {/* Match Winner Overlay */}
       {matchWinner && (
-        <div className="absolute inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-6 animate-fade-in" role="dialog" aria-modal="true" aria-labelledby="winner-title">
-           <div className="text-6xl mb-6 animate-bounce" aria-hidden="true">🏆</div>
-           <h2 id="winner-title" className="text-xl text-slate-400 uppercase tracking-widest font-bold mb-2">{t(config.language, 'matchWinner')}</h2>
-           <h1 className={`text-6xl font-black text-white mb-8 text-center ${teamA.name === matchWinner ? 'text-blue-400' : 'text-red-400'}`}>
+        <div ref={winnerDialogRef} tabIndex={-1} className="absolute inset-0 z-50 flex flex-col items-center justify-center overflow-hidden bg-slate-950/92 p-6 animate-fade-in" role="dialog" aria-modal="true" aria-labelledby="winner-title">
+           <div className="pointer-events-none absolute inset-0 z-0" aria-hidden="true">
+             <div className="absolute left-[-12%] top-[10%] h-72 w-72 rounded-full blur-3xl" style={{ background: teamAColor.glow }} />
+             <div className="absolute right-[-12%] top-[12%] h-72 w-72 rounded-full blur-3xl" style={{ background: teamBColor.glow }} />
+             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.78),rgba(15,23,42,0.9))]" />
+           </div>
+           <div className="relative z-10 mb-4 flex h-20 w-20 items-center justify-center rounded-full border border-white/8 bg-white/[0.04] shadow-[0_16px_32px_-24px_rgba(0,0,0,0.7)]" aria-hidden="true">
+             <div className="text-6xl">🏆</div>
+           </div>
+           <h2 id="winner-title" className="relative z-10 mb-2 text-xl font-black uppercase tracking-[0.28em] text-slate-200">{t(config.language, 'matchWinner')}</h2>
+           <h1 className="relative z-10 mb-3 px-4 text-center font-display text-[clamp(2.8rem,11vw,3.75rem)] font-black uppercase tracking-[-0.02em] leading-none break-words drop-shadow-[0_14px_30px_rgba(15,23,42,0.6)]" style={{ color: teamA.name === matchWinner ? teamAColor.highlight : teamBColor.highlight }}>
              {matchWinner}
            </h1>
+           <div className="relative z-10 mb-8 h-1 w-24 rounded-full" style={{ background: `linear-gradient(90deg, ${teamAColor.swatch}, ${teamBColor.swatch})` }} aria-hidden="true" />
            
-           <div className="bg-white/10 rounded-2xl p-6 mb-8 w-full max-w-md backdrop-blur-sm">
-              <div className="text-center text-slate-300 font-bold mb-4 uppercase text-sm tracking-widest">{t(config.language, 'finalScore')}</div>
-              <div className="flex justify-between items-center text-4xl font-black text-white mb-6 border-b border-white/10 pb-6">
-                 <div>{teamA.name} <span className="text-blue-400 text-5xl ml-2">{teamA.setsWon}</span></div>
+           <div className="relative z-10 mb-8 w-full max-w-md overflow-hidden rounded-[2rem] border border-white/8 bg-slate-900/84 p-6 shadow-[0_24px_60px_-40px_rgba(0,0,0,0.78)]">
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),transparent)]" aria-hidden="true" />
+              <div className="mb-4 text-center text-sm font-bold uppercase tracking-[0.26em] text-slate-300">{t(config.language, 'finalScore')}</div>
+              <div className="mb-6 flex items-center justify-between gap-4 border-b border-white/10 pb-6 text-[clamp(1.35rem,6vw,2.25rem)] font-black text-white">
+                 <div className="min-w-0 break-words">{teamA.name} <span className="ml-2 text-[clamp(2rem,7vw,3rem)]" style={{ color: teamAColor.highlight }}>{teamA.setsWon}</span></div>
                  <div className="text-slate-500 text-2xl" aria-hidden="true">-</div>
-                 <div><span className="text-red-400 text-5xl mr-2">{teamB.setsWon}</span> {teamB.name}</div>
+                 <div className="min-w-0 break-words text-right"><span className="mr-2 text-[clamp(2rem,7vw,3rem)]" style={{ color: teamBColor.highlight }}>{teamB.setsWon}</span> {teamB.name}</div>
               </div>
 
               <div className="space-y-2">
-                 <div className="text-center text-slate-400 text-xs font-bold uppercase mb-2">{t(config.language, 'sets')}</div>
+                 <div className="mb-2 text-center text-xs font-bold uppercase text-slate-400">{t(config.language, 'sets')}</div>
                  <div className="grid grid-cols-1 gap-2">
                     {history.filter(h => h.type === 'SET_WIN' || h.type === 'MATCH_WIN').map((set, idx) => (
-                       <div key={idx} className="flex justify-between items-center bg-black/20 p-2 rounded px-4">
+                       <div key={idx} className="flex items-center justify-between rounded-xl border border-white/6 bg-white/6 px-4 py-2">
                           <span className="text-slate-400 font-mono text-sm">#{idx+1}</span>
                           <div className="flex gap-4 font-bold text-lg">
-                             <span className={set.scoreSnapshot.a > set.scoreSnapshot.b ? 'text-yellow-400' : 'text-slate-400'}>{set.scoreSnapshot.a}</span>
+                             <span style={{ color: set.scoreSnapshot.a > set.scoreSnapshot.b ? teamAColor.highlight : '#94a3b8' }}>{set.scoreSnapshot.a}</span>
                              <span className="text-slate-600">-</span>
-                             <span className={set.scoreSnapshot.b > set.scoreSnapshot.a ? 'text-yellow-400' : 'text-slate-400'}>{set.scoreSnapshot.b}</span>
+                             <span style={{ color: set.scoreSnapshot.b > set.scoreSnapshot.a ? teamBColor.highlight : '#94a3b8' }}>{set.scoreSnapshot.b}</span>
                           </div>
                        </div>
                     ))}
@@ -530,8 +550,8 @@ export default function App() {
               </div>
            </div>
 
-           <div className="flex flex-col gap-3 w-full max-w-xs">
-             <Button size="lg" onClick={handleShare} className="w-full" icon={<ShareIcon />}>
+           <div className="relative z-10 flex w-full max-w-xs flex-col gap-3">
+             <Button ref={winnerShareButtonRef} size="lg" onClick={handleShare} className="w-full" icon={<ShareIcon />}>
                 {t(config.language, 'share')}
              </Button>
              <Button variant="secondary" onClick={handleResetRequest} className="w-full">

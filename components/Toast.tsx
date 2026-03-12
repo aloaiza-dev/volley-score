@@ -18,8 +18,8 @@ export const Toast: React.FC<ToastProps> = ({ message, isVisible, onClose, durat
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-12 left-1/2 transform -translate-x-1/2 z-[100] animate-fade-in px-6 w-full max-w-sm flex justify-center pointer-events-none">
-      <div className="bg-slate-800 dark:bg-slate-100 text-white dark:text-slate-900 px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 pointer-events-auto border border-white/10 dark:border-slate-300">
+    <div className="fixed bottom-8 left-1/2 z-[100] flex w-full max-w-sm -translate-x-1/2 justify-center px-6 pointer-events-none">
+      <div className="pointer-events-auto flex items-center gap-3 rounded-full border border-white/10 bg-slate-950/92 px-6 py-3 text-white shadow-[0_24px_50px_-28px_rgba(15,23,42,1)] animate-slide-up dark:border-slate-300 dark:bg-slate-100 dark:text-slate-900">
         <span className="text-xl">ℹ️</span>
         <span className="font-bold text-sm text-center">{message}</span>
       </div>
