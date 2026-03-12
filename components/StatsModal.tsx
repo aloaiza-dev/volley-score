@@ -77,9 +77,9 @@ export const StatsModal: React.FC<StatsModalProps> = ({
   const teamBColor = getTeamColorToken(teamB.color);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-md p-4" role="dialog" aria-modal="true" aria-labelledby="stats-title">
-      <div ref={dialogRef} tabIndex={-1} className="flex max-h-[90vh] w-full max-w-lg flex-col rounded-[2rem] border border-slate-200/80 bg-white/92 shadow-[0_30px_80px_-36px_rgba(15,23,42,0.8)] transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800/96">
-        <div className="flex items-center justify-between gap-3 border-b border-slate-200/80 p-4 sm:p-6 dark:border-slate-700">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/26 p-4 backdrop-blur-sm dark:bg-slate-950/60 dark:backdrop-blur-md" role="dialog" aria-modal="true" aria-labelledby="stats-title">
+      <div ref={dialogRef} tabIndex={-1} className="flex max-h-[90vh] w-full max-w-lg flex-col rounded-[2rem] border border-slate-300/80 bg-white shadow-[0_30px_80px_-40px_rgba(15,23,42,0.28)] transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800/96 dark:shadow-[0_30px_80px_-36px_rgba(15,23,42,0.8)]">
+        <div className="flex items-center justify-between gap-3 border-b border-slate-200 p-4 sm:p-6 dark:border-slate-700">
            <h2 id="stats-title" className="min-w-0 font-display text-xl font-black uppercase tracking-[0.08em] text-slate-900 dark:text-white flex items-center gap-2 sm:text-2xl">
              📊 {t(config.language, 'matchStats')}
            </h2>
@@ -107,7 +107,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({
 
           {/* Stat Cards Grid */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 dark:bg-slate-900/50 dark:border-slate-700">
                <div className="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold mb-1">{t(config.language, 'setsWon')}</div>
                <div className="flex justify-between items-center">
                  <div className="min-w-0 truncate pr-2 font-bold text-slate-900 dark:text-white">{teamA.name}</div>
@@ -119,7 +119,7 @@ export const StatsModal: React.FC<StatsModalProps> = ({
                </div>
             </div>
 
-            <div className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 dark:bg-slate-900/50 dark:border-slate-700">
                <div className="text-xs text-slate-500 dark:text-slate-400 uppercase font-bold mb-1">{t(config.language, 'longestStreak')}</div>
                <div className="flex justify-between items-center">
                  <div className="font-bold text-slate-900 dark:text-white truncate pr-2">{teamA.name}</div>

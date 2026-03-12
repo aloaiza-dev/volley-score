@@ -37,8 +37,8 @@ export const InputModal: React.FC<InputModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/60 backdrop-blur-md p-4 animate-fade-in" role="dialog" aria-modal="true" aria-labelledby="input-title">
-      <div ref={dialogRef} tabIndex={-1} className="w-full max-w-sm rounded-[1.8rem] border border-slate-200 bg-slate-50 p-6 shadow-[0_30px_80px_-36px_rgba(15,23,42,0.8)] transition-all dark:border-slate-700 dark:bg-slate-900">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/26 p-4 backdrop-blur-sm animate-fade-in dark:bg-slate-950/60 dark:backdrop-blur-md" role="dialog" aria-modal="true" aria-labelledby="input-title">
+      <div ref={dialogRef} tabIndex={-1} className="w-full max-w-sm rounded-[1.8rem] border border-slate-300/80 bg-white p-6 shadow-[0_30px_80px_-40px_rgba(15,23,42,0.28)] transition-all dark:border-slate-700 dark:bg-slate-900 dark:shadow-[0_30px_80px_-36px_rgba(15,23,42,0.8)]">
         <h3 id="input-title" className="font-display mb-4 text-xl font-black uppercase tracking-[0.08em] text-slate-950 dark:text-slate-50">{title}</h3>
         <form onSubmit={handleSubmit}>
           <input

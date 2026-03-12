@@ -39,9 +39,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-md p-4" role="dialog" aria-modal="true" aria-labelledby="settings-title">
-      <div ref={dialogRef} tabIndex={-1} className="flex max-h-[90vh] w-full max-w-md flex-col rounded-[2rem] border border-slate-200/70 bg-white/92 shadow-[0_30px_80px_-36px_rgba(15,23,42,0.8)] transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800/96">
-        <div className="flex shrink-0 items-center justify-between border-b border-slate-200/80 p-6 dark:border-slate-700">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/26 p-4 backdrop-blur-sm dark:bg-slate-950/60 dark:backdrop-blur-md" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <div ref={dialogRef} tabIndex={-1} className="flex max-h-[90vh] w-full max-w-md flex-col rounded-[2rem] border border-slate-300/80 bg-white shadow-[0_30px_80px_-40px_rgba(15,23,42,0.28)] transition-colors duration-300 dark:border-slate-700 dark:bg-slate-800/96 dark:shadow-[0_30px_80px_-36px_rgba(15,23,42,0.8)]">
+        <div className="flex shrink-0 items-center justify-between border-b border-slate-200 p-6 dark:border-slate-700">
            <h2 id="settings-title" className="font-display text-2xl font-black uppercase tracking-[0.08em] text-slate-900 dark:text-white">{t(config.language, 'settingsTitle')}</h2>
            <Button ref={closeButtonRef} variant="ghost" size="sm" onClick={onClose} aria-label={t(config.language, 'close')}>✕</Button>
         </div>

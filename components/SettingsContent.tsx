@@ -36,7 +36,7 @@ export const SettingsContent: React.FC<SettingsContentProps> = ({
   };
 
   const renderTeamSettings = (label: string, team: TeamState, setTeam: (t: TeamState) => void, idPrefix: string) => (
-    <div className="space-y-4 rounded-[1.6rem] border border-slate-200/80 bg-white/80 p-4 shadow-[0_18px_40px_-34px_rgba(15,23,42,0.55)] backdrop-blur-sm dark:border-slate-700 dark:bg-slate-900/60">
+    <div className="space-y-4 rounded-[1.6rem] border border-slate-200 bg-white p-4 shadow-[0_16px_32px_-28px_rgba(15,23,42,0.18)] dark:border-slate-700 dark:bg-slate-900/60 dark:shadow-none">
       <label htmlFor={`${idPrefix}-name`} className="block text-slate-500 dark:text-slate-300 font-bold text-xs uppercase tracking-[0.24em]">{label}</label>
       <input 
         id={`${idPrefix}-name`}
@@ -85,7 +85,7 @@ export const SettingsContent: React.FC<SettingsContentProps> = ({
               className={`flex-1 py-3 rounded-xl font-bold border transition-colors ${
                 config.language === 'en'
                   ? 'bg-slate-950 border-slate-950 text-white dark:bg-white dark:border-white dark:text-slate-950' 
-                  : 'bg-white/80 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'
+                  : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
               }`}
             >
               English
@@ -96,7 +96,7 @@ export const SettingsContent: React.FC<SettingsContentProps> = ({
               className={`flex-1 py-3 rounded-xl font-bold border transition-colors ${
                 config.language === 'es'
                   ? 'bg-slate-950 border-slate-950 text-white dark:bg-white dark:border-white dark:text-slate-950' 
-                  : 'bg-white/80 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'
+                  : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
               }`}
             >
               Español
@@ -116,7 +116,7 @@ export const SettingsContent: React.FC<SettingsContentProps> = ({
                 className={`flex-1 py-3 rounded-xl font-bold border transition-colors ${
                   config.setsToWin === sets 
                     ? 'bg-slate-950 border-slate-950 text-white dark:bg-white dark:border-white dark:text-slate-950' 
-                    : 'bg-white/80 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'
+                    : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
                 }`}
               >
                 {t(config.language, 'bestOf')} {sets * 2 - 1}
@@ -128,7 +128,7 @@ export const SettingsContent: React.FC<SettingsContentProps> = ({
         {/* Points per Set */}
         <div>
           <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-300">{t(config.language, 'pointsPerSet')}</label>
-          <div className="flex items-center justify-between gap-3 rounded-[1.4rem] border border-slate-200 bg-white/80 p-2 dark:border-slate-700 dark:bg-slate-900">
+          <div className="flex items-center justify-between gap-3 rounded-[1.4rem] border border-slate-200 bg-slate-50 p-2 dark:border-slate-700 dark:bg-slate-900">
             <button 
               type="button"
               onClick={() => handleChange('pointsPerSet', Math.max(5, config.pointsPerSet - 1))}
@@ -148,7 +148,7 @@ export const SettingsContent: React.FC<SettingsContentProps> = ({
         {/* Tie Break Points */}
         <div>
           <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-300">{t(config.language, 'tieBreakPoints')}</label>
-          <div className="flex items-center justify-between gap-3 rounded-[1.4rem] border border-slate-200 bg-white/80 p-2 dark:border-slate-700 dark:bg-slate-900">
+          <div className="flex items-center justify-between gap-3 rounded-[1.4rem] border border-slate-200 bg-slate-50 p-2 dark:border-slate-700 dark:bg-slate-900">
             <button 
               type="button"
               onClick={() => handleChange('lastSetPoints', Math.max(5, config.lastSetPoints - 1))}
